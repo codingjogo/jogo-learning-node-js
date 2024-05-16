@@ -1,0 +1,1 @@
+console.log('I setup 01-common-js-modules');
