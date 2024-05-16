@@ -8,6 +8,12 @@ const server = http.createServer((req,res) => {
     // res.setHeader('Content-Type', 'text/html');
     // res.statusCode = 404;
 
+    // this shows the path of the url like:
+    // "/", "/about", "/profile"....
+    console.log(req.url)
+    // this shows /GET, /POST, /SET ...
+    console.log(req.method)
+
     // instead separating, do this:
     res.writeHead(404, {'Content-Type': 'text/html'})
 
