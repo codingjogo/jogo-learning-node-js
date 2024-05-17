@@ -1,58 +1,45 @@
-import http from "http";
-// fs module
-import fs from "fs/promises"; // promise version
-import url from 'url';
-import path from 'path'
-// open a PORT for server
+import { createServer } from "http";
 const PORT = process.env.PORT;
-// Get current path of filename
-const __filename = url.fileURLToPath(import.meta.url);
-// Get current path of directory folder of that __filename
-const __dirname = path.dirname(__filename);
 
-console.log(__filename, __dirname);
+const users = [
+	{ id: 1, name: "Jogo" },
+	{ id: 2, name: "Jane Doe" },
+	{ id: 3, name: "Mak Sheesh" },
+];
 
 // creates a server
-const server = http.createServer(async (req, res) => {
-	// checks methods
-	try {
-		if (req.method === "GET") {
-			let filePath;
-			// routing
-			if (req.url === "/") {
-				filePath = path.join(__dirname, 'public', 'index.html');
-			} else if (req.url === "/about") {
-				filePath = path.join(__dirname, 'public', 'about.html');
-			} else {
-				throw new Error('Not found')
-			}
+const server = createServer((req, res) => {
+	if (req.url === "/api/users" && req.method === "GET") {
+		res.setHeader("Content-Type", "application/json");
+		res.write(JSON.stringify(users));
+		res.end();
+	} else if (
+		req.url.match(/\/api\/users\/([0-9]+)/) &&
+		req.method === "GET"
+	) {
+		const urlSplit = req.url.split("/"); // input: 1 output: [ '', 'api', 'users', '1' ]
+		const id = urlSplit[3]; // gets the 3rd index which is "1";
+		const user = users.find((user) => user.id === parseInt(id)); // returns object that matches the ID from request URL
+		res.setHeader("Content-Type", "application/json");
 
-			const data = await fs.readFile(filePath);
-			res.setHeader('Content-Type', 'text/html');
-			res.write(data);
-			res.end();
+		// if user exist
+		if (user) {
+			console.log(`ID user: ${id}`);
+			console.log(`User: ${user}`);
+			res.write(JSON.stringify(user));
 		} else {
-			throw new Error("Method not allowed");
+			console.error(`User ID:${id} not found`);
+			res.statusCode = 404;
+			res.write(JSON.stringify({ message: "User not found" }));
 		}
-	} catch (error) {
-        res.writeHead(404, { "Content-Type": "text/plain" });
-        res.end("SERVER ERROR");
-    }
 
-	// res.write('Hello World WRITE');
-	// res.setHeader('Content-Type', 'text/html');
-	// res.statusCode = 404;
-
-	// this shows the path of the url like:
-	// "/", "/about", "/profile"....
-	// console.log(req.url)
-	// this shows /GET, /POST, /SET ...
-	// console.log(req.method)
-
-	// instead separating, do this:
-	// res.writeHead(404, {'Content-Type': 'text/html'})
-
-	// res.end(JSON.stringify({ message: 'ERROR MESSAGE GOES HERE'}));
+		res.end();
+	} else {
+		res.setHeader("Content-Type", "application/json");
+		res.statusCode = 404;
+		res.write(JSON.stringify({ message: "Route not found" }));
+		res.end();
+	}
 });
 
 // listen to server
