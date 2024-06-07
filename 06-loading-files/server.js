@@ -10,7 +10,8 @@ const __filename = url.fileURLToPath(import.meta.url);
 // Get current path of directory folder of that __filename
 const __dirname = path.dirname(__filename);
 
-console.log(__filename, __dirname);
+console.log('__filename:', __filename); // Example Output: /project/src/file1.mjs
+console.log('__dirname:', __dirname);   // Example Output: /project/src
 
 // creates a server
 const server = http.createServer(async (req, res) => {
